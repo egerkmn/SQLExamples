@@ -79,3 +79,27 @@ FROM
 GROUP BY install_date
 
 
+'''5) Query Desc: Calculating number of churn customers and detecting the most challenging game id by using LEAD-OVER(PARTITION BY) function'''
+--Data Table 1 Desc: an in-app game start log table containing event_time, user_id, platform(IOS/ANDROID), game_id
+--Data Table 1 Name: table_game_start
+--Data Table 2 Desc: an in-app game end log table containing event_time, user_id, platform(IOS/ANDROID), game_id, status(fail/win/quit), game_duration
+--Data Table 2 Name: table_game_end
+--Highlighted Functions: LEAD()-OVER(PARTITION BY)
+--Output: number of users who stop playing the game after a fail result
+SELECT game_id, --"group by" column
+COUNT(DISTINCT user_id) AS churn_user FROM  -- calculation for "group by"
+(SELECT *, 
+--LEAD function is used to get the next game status, but if there is no game played, then we will get NULL value.
+LEAD(status) OVER(PARTITION BY user_id ORDER BY event_time) AS lead_status 
+FROM  
+(SELECT *, 'start' AS status, NULL AS game_duration 
+FROM table_game_start  
+UNION ALL 
+SELECT * FROM table_game_end  
+WHERE platform IS NOT NULL AND game_duration IS NOT NULL)tmp)table_lead 
+WHERE status='fail' AND lead_status IS NULL 
+GROUP BY game_id 
+ORDER BY game_id
+
+
+
