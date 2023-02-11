@@ -14,3 +14,4 @@ Some highlighted functions are listed below.
 - LAG() OVER(PARTITION BY <COLMN_1> ORDER BY <COLMN_2>),
 - MIN() OVER(PARTITION BY <COLMN_1> ORDER BY <COLMN_2>)
 
+Implementation of some functions may change according to database types such as Impala, BigQuery, Oracle SQL, etc.
